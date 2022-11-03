@@ -32,6 +32,11 @@ class _LoginPageState extends State<LoginPage> {
       listener: (ctx, authState) {
         if (authState.userModel != null) {
           print('login user successfully.');
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            RouteConstant.homeRoute,
+            (route) => false,
+          );
         } else {
           print('elogin errror');
         }

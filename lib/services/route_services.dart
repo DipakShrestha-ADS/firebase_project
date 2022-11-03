@@ -1,6 +1,8 @@
 import 'package:firebase_project/constants/route_constant.dart';
 import 'package:firebase_project/modules/auth/screens/login_page.dart';
 import 'package:firebase_project/modules/auth/screens/register_page.dart';
+import 'package:firebase_project/modules/dashboard/screens/home_page.dart';
+import 'package:firebase_project/splash_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -24,6 +26,18 @@ Route<dynamic> myCustomRoutes(RouteSettings routeSettings) {
     return CupertinoPageRoute(
       builder: (ctx) {
         return RegisterPage();
+      },
+    );
+  } else if (name == RouteConstant.homeRoute) {
+    return CupertinoPageRoute(
+      builder: (ctx) {
+        return HomePage();
+      },
+    );
+  } else if (name == RouteConstant.splashRoute) {
+    return CupertinoPageRoute(
+      builder: (ctx) {
+        return SplashScreen();
       },
     );
   } else {

@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:bot_toast/bot_toast.dart';
 import 'package:firebase_project/cubit/image_picker_cubit.dart';
 import 'package:firebase_project/modules/auth/cubit/auth_cubit.dart';
 import 'package:firebase_project/modules/auth/models/user_model.dart';
@@ -76,18 +75,20 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               Container(
                 width: double.infinity,
-                height: 80,
+                height: 150,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: Colors.grey, width: 2),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                 child: Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     FractionallySizedBox(
                       widthFactor: 0.5,
                       child: Center(
-                        child: Column(
+                        child: Wrap(
                           children: [
                             IconButton(
                               icon: const Icon(
@@ -119,22 +120,25 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     FractionallySizedBox(
                       widthFactor: 0.5,
-                      child: BlocBuilder<ImagePickerCubit, ImagePickerState>(builder: (context, ipState) {
-                        if (ipState.imageData != null) {
-                          return Image.memory(
-                            ipState.imageData!,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
+                      child: BlocBuilder<ImagePickerCubit, ImagePickerState>(
+                        builder: (context, ipState) {
+                          if (ipState.imageData != null) {
+                            return Image.memory(
+                              ipState.imageData!,
+                              width: 150,
+                              height: 150,
+                              fit: BoxFit.cover,
+                            );
+                          }
+                          return const Center(
+                            child: Icon(
+                              Icons.image_not_supported,
+                              color: Colors.red,
+                              size: 150,
+                            ),
                           );
-                        }
-                        return const Center(
-                          child: Icon(
-                            Icons.image_not_supported,
-                            color: Colors.red,
-                            size: 30,
-                          ),
-                        );
-                      }),
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -351,10 +355,10 @@ class _RegisterPageState extends State<RegisterPage> {
                     final age = ageController.text;
                     final phoneNumber = phoneController.text;
                     final imageState = context.read<ImagePickerCubit>().state;
-                    if (imageState.image == null) {
+                    /*if (imageState.image == null) {
                       BotToast.showText(text: 'Please select your profile picture.');
                       return;
-                    }
+                    }*/
                     UserModel userModel = UserModel(
                       fullName: fullName,
                       email: email,

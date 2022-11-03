@@ -9,6 +9,7 @@ class ImagePickerCubit extends Cubit<ImagePickerState> {
   void handlePickedImage(XFile? image) async {
     if (image != null) {
       final imageData = await image.readAsBytes();
+      print('image data : ${imageData.length}');
       print('picked image name : ${image.name}');
       final imageExtension = image.name.split('.').last;
       emit(ImagePickerState(

@@ -5,17 +5,36 @@ import 'package:firebase_project/modules/auth/repositories/firebase_firestore_re
 import 'package:firebase_project/modules/auth/services/firebase_auth_services.dart';
 import 'package:firebase_project/services/encrypt_decrypt_services.dart';
 import 'package:firebase_project/services/firbase_storage_services.dart';
+import 'package:firebase_project/services/shared_preferences_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 
 import '../../../cubit/image_picker_cubit.dart';
 
 class AuthCubit extends Cubit<AuthState> {
-  AuthCubit() : super(AuthState());
-
+  AuthCubit({required this.sps}) : super(AuthState());
+  final SharedPreferencesServices sps;
   final fas = FirebaseAuthServices();
   final ffr = FirebaseFirestoreRepository();
   final fss = FirebaseStorageServices();
+
+  Future<void> loginUserUsingSp({required Map<dynamic, dynamic> data}) async {
+    if (data.isNotEmpty) {
+      final token = data['token'];
+      final uid = data['uid'];
+      final isExpired = Jwt.isExpired(token);
+      print('token detail ;: ${Jwt.parseJwt(token)}');
+      if (isExpired) {
+        emit(AuthState(userModel: null));
+      } else {
+        final userModel = await ffr.getUserDetails(uid);
+        emit(AuthState(userModel: userModel));
+      }
+    } else {
+      emit(AuthState(userModel: null));
+    }
+  }
 
   Future<void> loginUser({required String email, required String password}) async {
     BotToast.showLoading();
@@ -23,6 +42,13 @@ class AuthCubit extends Cubit<AuthState> {
       final userCred = await fas.loginUsingEmailAndPassword(email: email, password: password);
       final userModel = await ffr.getUserDetails(userCred.user!.uid);
       BotToast.closeAllLoading();
+      final token = await userCred.user?.getIdToken();
+      print('token from firbease: $token');
+      if (token != null) {
+        await sps.storeUserDetails(token: token, userId: userModel!.id!);
+        final savedData = sps.getUserDetails();
+        print('saved data in cubit: $savedData');
+      }
 
       ///todo need to save token in shared preference
       emit(AuthState(userModel: userModel));
@@ -33,7 +59,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> registerUser({required UserModel userModel, required BuildContext context}) async {
-    BotToast.showLoading();
+    // BotToast.showLoading();
     try {
       final imageState = context.read<ImagePickerCubit>().state;
       String? imageUrl;
@@ -74,6 +100,7 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       await fas.logoutUser();
       BotToast.closeAllLoading();
+      await sps.clearUserPreferences();
       emit(AuthState());
     } catch (e) {
       BotToast.closeAllLoading();
